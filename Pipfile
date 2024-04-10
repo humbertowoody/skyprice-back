@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pandas = "*"
+numpy = "*"
+scikit-learn = "*"
+joblib = "*"
+fastapi = "*"
+uvicorn = "*"
+matplotlib = "*"
+email-validator = "*"
+python-dotenv = "*"
+tensorflow = "*"
+scikeras = {editable = true, ref = "fix-dep", git = "git+https://github.com/adriangb/scikeras.git"}
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

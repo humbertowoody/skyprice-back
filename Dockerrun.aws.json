@@ -1,0 +1,8 @@
+{
+  "AWSEBDockerrunVersion": "1",
+  "Image": {
+    "Name": "humbertowoody/skyprice-api:latest",
+    "Update": "true"
+  },
+  "Ports": [{ "ContainerPort": 5000 }]
+}
