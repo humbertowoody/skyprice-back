@@ -88,6 +88,9 @@ df = df[
 ]
 print(f'Estadísticas después de aplicar límites:\n {df.describe()}')
 
+print("Valor FAST_TEST: ", FAST_TEST)
+print("Evaluación de FAST_TEST: ", FAST_TEST and "rápida" or "lenta")
+
 # Esperar a que el usuario presione una tecla
 input("Presiona una tecla para continuar...")
 
@@ -128,40 +131,7 @@ print("Entrenando Red Neuronal...")
 # Preprocesar los datos para la red neuronal
 X_train_preprocessed = preprocessor.fit_transform(X_train)
 
-## Crear una función que construya el modelo
-#def build_nn_model(n_units=64, optimizer='adam', initializer='glorot_uniform', activation='relu'):
-#    nn_model = Sequential()
-#    nn_model.add(Input(shape=(X_train_preprocessed.shape[1],)))
-#    nn_model.add(Dense(n_units, kernel_initializer=initializer, activation=activation))
-#    nn_model.add(Dense(n_units, kernel_initializer=initializer, activation=activation))
-#    nn_model.add(Dense(1, kernel_initializer=initializer))
-#    #nn_model.compile(optimizer=optimizer, loss='mean_squared_error')
-#    return nn_model
-#
-#
-## Envolver el modelo Keras para que funcione con scikit-learn
-#nn_keras = KerasRegressor(model=build_nn_model, loss='mse', n_units=64, optimizer='adam', initializer='glorot_uniform', activation='relu')
-#
-## Parámetros a buscar
-##param_grid_nn = {
-##    'batch_size': [50, 100, 150],
-##    'epochs': [50, 100],
-##    'model__n_units': [64, 128, 256],
-##    'model__optimizer': ['adam', 'rmsprop']
-##}
-#param_grid_nn = {
-#    'batch_size': [50],
-#    'epochs': [50],
-#    'model__n_units': [64],
-#    'model__optimizer': ['adam'],
-#    'model__initializer': ['glorot_uniform'],
-#    'model__activation': ['relu'],
-#    'loss': ['mse']
-#}
-#
-## Crear el objeto GridSearchCV
-#grid_search_nn = GridSearchCV(estimator=nn_keras, param_grid=param_grid_nn, cv=5, verbose=2,n_jobs=-1)
-
+# Función para obtener el modelo de red neuronal
 def get_reg(meta, hidden_layer_sizes, dropout):
     n_features_in_ = meta["n_features_in_"]
     model = keras.models.Sequential()
@@ -172,6 +142,7 @@ def get_reg(meta, hidden_layer_sizes, dropout):
     model.add(keras.layers.Dense(1))
     return model
 
+# Crear el modelo de red neuronal
 reg = KerasRegressor(
     model=get_reg,
     loss=keras.losses.MeanSquaredError,
@@ -181,23 +152,33 @@ reg = KerasRegressor(
     dropout=0.5,
 )
 
+# Parámetros a buscar
+param_grid_nn_fast = {
+    "hidden_layer_sizes": [(10, 10)],
+    "dropout": [0.5],
+    "batch_size": [50],
+    "epochs": [50],
+    "optimizer": [keras.optimizers.Adam],
+    "optimizer__learning_rate": [0.1],
+    "loss": [keras.losses.MeanSquaredError],
+    "metrics": [keras.metrics.MeanSquaredError],
+}
+param_grid_nn_slow = {
+    "hidden_layer_sizes": [(10, 10), (10, 10, 10), (30, 30)],
+    "dropout": [0.5, 0.7],
+    "batch_size": [50, 100],
+    "epochs": [50, 100, 200, 500],
+    "optimizer": [keras.optimizers.Adam],
+    "optimizer__learning_rate": [0.1, 0.01, 0.001],
+    "loss": [keras.losses.MeanSquaredError],
+    "metrics": [keras.metrics.MeanSquaredError],
+}
+param_grid_nn = FAST_TEST and param_grid_nn_fast or param_grid_nn_slow
+
+# Crear el objeto GridSearchCV
 grid_search_nn = GridSearchCV(
     estimator=reg,
-    param_grid={
-        "hidden_layer_sizes": [(100,)],# (100, 100), (100, 100, 100)],
-        "dropout": [0.5],# 0.7],
-        # Now loss, batch size, epochs, optimizer, etc. can be specified as well
-        "batch_size": [50],
-        "epochs": [50],
-        #"optimizer": [keras.optimizers.Adam],
-        "optimizer__learning_rate": [0.1],#, 0.01, 0.001],
-        #"loss": [keras.losses.MeanSquaredError],
-        #"loss": ["mean_squared_error"],
-        #"metrics": ["mean_squared_error"],
-        #"metrics": [keras.metrics.MeanSquaredError],
-        #"model__activation": ["relu", "tanh", "sigmoid"],
-        #"model__initializer": ["glorot_uniform", "he_normal", "he_uniform"],
-    },
+    param_grid=param_grid_nn,
     refit=False,
     cv=5,
     verbose=2,
@@ -213,9 +194,17 @@ mejores_parametros = grid_search_nn.best_params_
 # Imprimir los mejores Parámetros
 print(f"\t- Mejores parámetros: {mejores_parametros}")
 
-# Entrenar el modelo con los mejores parámetros
-nn_model = reg.set_params(**mejores_parametros)
-nn_model.fit(X_train_preprocessed, y_train)
+# Crear el modelo y compilarlo con los mejores parámetros
+opt = keras.optimizers.Adam(learning_rate=mejores_parametros["optimizer__learning_rate"])
+nn_model = get_reg({"n_features_in_": X_train_preprocessed.shape[1]}, mejores_parametros["hidden_layer_sizes"], mejores_parametros["dropout"])
+nn_model.compile(
+        optimizer=opt,
+        loss=keras.losses.MeanSquaredError(), metrics=[keras.metrics.MeanSquaredError()])
+nn_model.fit(X_train_preprocessed,
+             y_train,
+             batch_size=mejores_parametros["batch_size"],
+             epochs=mejores_parametros["epochs"],
+             verbose='2')
 
 print("Modelo Red Neuronal entrenado")
 
@@ -226,11 +215,17 @@ rf_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
                               ('regressor', RandomForestRegressor(random_state=42, oob_score=True))])
 
 # Parámetros a buscar
-param_grid_rf = {
+param_grid_rf_fast = {
+    'regressor__n_estimators': [100],
+    'regressor__max_depth': [None],
+    'regressor__min_samples_split': [2],
+}
+param_grid_rf_slow = {
     'regressor__n_estimators': [100, 500, 1000],
     'regressor__max_depth': [None, 10, 20, 30],
     'regressor__min_samples_split': [2, 5, 10]
 }
+param_grid_rf = FAST_TEST and param_grid_rf_fast or param_grid_rf_slow
 
 # Crear el objeto GridSearchCV
 grid_search_rf = GridSearchCV(rf_pipeline, param_grid=param_grid_rf, cv=5, verbose=2, n_jobs=-1)
@@ -252,11 +247,17 @@ svm_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
                                ('svr', SVR())])
 
 # Parámetros a buscar
-param_grid_svm = {
+param_grid_svm_fast = {
+    'svr__C': [0.1],
+    'svr__gamma': ['scale'],
+    'svr__epsilon': [0.01],
+}
+param_grid_svm_slow = {
     'svr__C': [0.1, 1, 100, 1000],
     'svr__gamma': ['scale', 'auto', 0.01, 0.001],
-    'svr__epsilon': [0.01, 0.1, 1]
+    'svr__epsilon': [0.01, 0.1, 1, 10]
 }
+param_grid_svm = FAST_TEST and param_grid_svm_fast or param_grid_svm_slow
 
 # Crear el objeto GridSearchCV
 grid_search_svm = GridSearchCV(svm_pipeline, param_grid=param_grid_svm, cv=5, verbose=2, n_jobs=-1)
@@ -275,7 +276,7 @@ print("Modelo SVM entrenado")
 print("Guardando modelos...")
 dump(rf_pipeline, ARCHIVO_MODELO_RF)
 dump(svm_pipeline, ARCHIVO_MODELO_SVM)
-nn_model.save(ARCHIVO_MODELO_RN)
+dump(nn_model, ARCHIVO_MODELO_RN)
 dump(preprocessor, ARCHIVO_PREPROCESADOR)
 print(f"Modelos guardados en archivos {ARCHIVO_MODELO_RF}, {ARCHIVO_MODELO_SVM}, {ARCHIVO_MODELO_RN}, {ARCHIVO_PREPROCESADOR}")
 
@@ -290,6 +291,7 @@ validate_model(rf_pipeline, X_test, y_test, 'Random Forest')
 validate_model(svm_pipeline, X_test, y_test, 'SVM')
 validate_model(nn_model, preprocessor.transform(X_test), y_test, 'Red Neuronal')
 print("Modelos validados")
+
 
 # Fin del script
 print("Fin del script")

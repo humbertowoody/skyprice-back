@@ -10,7 +10,6 @@
 from fastapi.middleware.cors import CORSMiddleware # Para configurar CORS
 import datetime # Para obtener la fecha y hora actual
 from joblib import load # Para cargar los modelos de aprendizaje automático
-from tensorflow.keras.models import load_model # Para cargar el modelo de Redes Neuronales
 from sklearn.metrics import mean_absolute_error, mean_squared_error, root_mean_squared_error # Para calcular el error absoluto medio
 from pydantic import BaseModel, Field # Para definir la clase de la propiedad y sus campos
 import pandas as pd # Para trabajar con los datos de la propiedad
@@ -34,7 +33,7 @@ matplotlib.use('Agg')
 # Carga de modelos
 rf_model = load(ARCHIVO_MODELO_RF)
 svm_model = load(ARCHIVO_MODELO_SVM)
-nn_model = load_model(ARCHIVO_MODELO_RN)
+nn_model = load(ARCHIVO_MODELO_RN)
 preprocessor = load(ARCHIVO_PREPROCESADOR)
 
 logging.info("Modelos de aprendizaje automático cargados con éxito")
