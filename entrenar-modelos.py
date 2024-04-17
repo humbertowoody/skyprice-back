@@ -15,15 +15,13 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.metrics import mean_absolute_error
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Input
-#from tensorflow.keras.wrappers.scikit_learn import KerasRegressor
 from joblib import dump
 from constants import *
 import numpy as np
 from scikeras.wrappers import KerasRegressor
 import keras as keras
 
+# Mensaje de inicio
 print("Script de entrenamiento de modelos")
 print("Cargando datos...")
 
@@ -32,14 +30,14 @@ df = pd.read_csv(ARCHIVO_DATASET)
 print(f'Dimensiones del dataset: {df.shape}')
 
 # Convertir aquellos precios en USD a pesos mexicanos usando la tasa de cambio en constants
-df.loc[df['Currency'] == 'USD', 'Price'] *= TASA_CAMBIO_USD_MXN
+df.loc[df['Currency'] == 'USD', 'Price'] *= np.int64(TASA_CAMBIO_USD_MXN)
 
 # Convertir 'USD' a 'MN' en la columna 'Currency'
 df.loc[df['Currency'] == 'USD', 'Currency'] = 'MN'
 print(f'Valores únicos en Currency: \n{df["Currency"].unique()}')
 
 # Eliminar filas duplicadas a partir de la columna 'ID'
-df = df.drop_duplicates(subset='ID')
+#df.drop_duplicates(subset='ID', inplace=True)
 print(f'Dimensiones del dataset después de eliminar duplicados: {df.shape}')
 
 # Eliminar columnas no numéricas
@@ -52,7 +50,7 @@ df = df[df['Municipality'].isin(municipalities)]
 print(f'Dimensiones del dataset después de filtrar por alcaldías: {df.shape}')
 
 # Sustituir infinitos por NaN
-df.replace([np.inf, -np.inf], np.nan, inplace=True)
+#df.replace([np.inf, -np.inf], np.nan, inplace=True)
 print(f'Valores nulos después de sustituir infinitos: \n{df.isnull().sum()}')
 
 # Eliminar columnas no numéricas
@@ -61,9 +59,9 @@ for columna in columnas_numericas:
 print(f'Dimensiones del dataset después de eliminar columnas no numéricas: {df.shape}')
 
 # Sustituir NaN por la media en columnas numéricas de baja cardinalidad
-for columna in ['Rooms', 'Bathrooms', 'Parking']:
-    if df[columna].isnull().sum() > 0:
-        df[columna].fillna(df[columna].mean(), inplace=True)
+#for columna in ['Rooms', 'Bathrooms', 'Parking']:
+#    if df[columna].isnull().sum() > 0:
+#        df[columna].fillna(df[columna].mean())
 print(f'Valores nulos después de sustituir NaN por la media: \n{df.isnull().sum()}')
 
 # Eliminar filas con NaN
@@ -77,19 +75,20 @@ df['Age'] = df['Age'].apply(lambda x: year - x if x > 1000 else x)
 # Filtrar filas que cumplen con los rangos deseados
 df = df[
     (df['Price'] >= MIN_PRICE) & (df['Price'] <= MAX_PRICE) &
-    (df['Size_Terrain'] >= MIN_SIZE_TERRAIN) & (df['Size_Terrain'] <= MAX_SIZE_TERRAIN) &
-    (df['Size_Construction'] >= MIN_SIZE_CONSTRUCTION) & (df['Size_Construction'] <= MAX_SIZE_CONSTRUCTION) &
-    (df['Rooms'] >= MIN_ROOMS) & (df['Rooms'] <= MAX_ROOMS) &
-    (df['Bathrooms'] >= MIN_BATHROOMS) & (df['Bathrooms'] <= MAX_BATHROOMS) &
-    (df['Parking'] >= MIN_PARKING) & (df['Parking'] <= MAX_PARKING) &
-    (df['Age'] >= MIN_AGE) & (df['Age'] <= MAX_AGE) &
-    (df['Lat'] >= MIN_LAT) & (df['Lat'] <= MAX_LAT) &
-    (df['Lng'] >= MIN_LNG) & (df['Lng'] <= MAX_LNG)
+    (df['Size_Terrain'] >= MIN_SIZE_TERRAIN) & (df['Size_Terrain'] <= MAX_SIZE_TERRAIN)# &
+#    (df['Size_Construction'] >= MIN_SIZE_CONSTRUCTION) & (df['Size_Construction'] <= MAX_SIZE_CONSTRUCTION) &
+#    (df['Rooms'] >= MIN_ROOMS) & (df['Rooms'] <= MAX_ROOMS) &
+#    (df['Bathrooms'] >= MIN_BATHROOMS) & (df['Bathrooms'] <= MAX_BATHROOMS) &
+#    (df['Parking'] >= MIN_PARKING) & (df['Parking'] <= MAX_PARKING) &
+#    (df['Age'] >= MIN_AGE) & (df['Age'] <= MAX_AGE) &
+#    (df['Lat'] >= MIN_LAT) & (df['Lat'] <= MAX_LAT) &
+#    (df['Lng'] >= MIN_LNG) & (df['Lng'] <= MAX_LNG)
 ]
 print(f'Estadísticas después de aplicar límites:\n {df.describe()}')
 
 print("Valor FAST_TEST: ", FAST_TEST)
 print("Evaluación de FAST_TEST: ", FAST_TEST and "rápida" or "lenta")
+print("Valor TEST_SIZE: ", TEST_SIZE)
 
 # Esperar a que el usuario presione una tecla
 input("Presiona una tecla para continuar...")
@@ -212,7 +211,7 @@ print("Modelo Red Neuronal entrenado")
 print("Entrenando Random Forest...")
 # Crear el pipeline
 rf_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
-                              ('regressor', RandomForestRegressor(random_state=42, oob_score=True))])
+                              ('regressor', RandomForestRegressor(random_state=42, oob_score=True, n_jobs=-1))])
 
 # Parámetros a buscar
 param_grid_rf_fast = {
@@ -251,11 +250,13 @@ param_grid_svm_fast = {
     'svr__C': [0.1],
     'svr__gamma': ['scale'],
     'svr__epsilon': [0.01],
+    'svr__kernel': ['rbf']
 }
 param_grid_svm_slow = {
     'svr__C': [0.1, 1, 100, 1000],
     'svr__gamma': ['scale', 'auto', 0.01, 0.001],
-    'svr__epsilon': [0.01, 0.1, 1, 10]
+    'svr__epsilon': [0.01, 0.1, 1, 10],
+    'svr__kernel': ['rbf', 'linear', 'poly', 'sigmoid'],
 }
 param_grid_svm = FAST_TEST and param_grid_svm_fast or param_grid_svm_slow
 

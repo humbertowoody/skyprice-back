@@ -1,12 +1,12 @@
 from os import environ
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
+# Carga de variables de entorno
 load_dotenv()
 
 # Configuración de la aplicación
-DEBUG=environ.get('DEBUG', False)
-HOSTNAME=environ.get('HOSTNAME', 'http://localhost:8000')
+DEBUG: bool=bool(environ.get('DEBUG', 'False') == 'True')
+HOSTNAME: str=str(environ.get('HOSTNAME', 'http://localhost:8000'))
 
 # Rutas de archivos
 ARCHIVO_DATASET: str=environ.get('ARCHIVO_DATASET', 'dataset.csv')
@@ -46,7 +46,7 @@ TEST_SIZE: float=float(environ.get('TEST_SIZE', 0.25))
 FAST_TEST: bool=bool(environ.get('FAST_TEST', 'True') == 'True')
 
 # Lista de Alcaldías
-municipalities = ['Alvaro Obregón', 'Azcapotzalco', 'Benito Juárez', 'Coyoacán', 'Cuajimalpa', 'Cuauhtémoc',
+municipalities = ['Álvaro Obregón', 'Azcapotzalco', 'Benito Juárez', 'Coyoacán', 'Cuajimalpa', 'Cuauhtémoc',
                   'Gustavo A. Madero', 'Iztacalco', 'Iztapalapa', 'Magdalena Contreras', 'Miguel Hidalgo',
                   'Milpa Alta', 'Tláhuac', 'Tlalpan', 'Venustiano Carranza', 'Xochimilco']
 

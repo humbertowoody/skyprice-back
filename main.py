@@ -172,7 +172,7 @@ class PredictResponse(BaseModel):
 
 # Definición de la respuesta del endpoint de modelos
 class ModelsResponse(BaseModel):
-    dataset: dict = Field(..., example={"training": {"X": (1000, 8), "y": (1000, 1)}, "testing": {"X": (250, 8), "y": (250, 1)}}, description="Información sobre los datos de entrenamiento y prueba")
+    dataset: dict = Field(..., example={"original": (1000,8),"training": {"X": (1000, 8), "y": (1000, 1)}, "testing": {"X": (250, 8), "y": (250, 1)}}, description="Información sobre los datos de entrenamiento y prueba")
     models: dict = Field(..., example={"random_forest": {"mse": 1000000000.0, "ci": (900000000.0, 1100000000.0), "mae": 30000.0, "r2": 0.9, "feature_importances": [0.1, 0.2, 0.3, 0.4, 0.0, 0.0, 0.0, 0.0], "max_features": "auto", "max_depth": 10, "n_estimators": 100, "oob_score": True}, "svm": {"mse": 1500000000.0, "ci": (1400000000.0, 1600000000.0), "mae": 40000.0, "r2": 0.8, "kernel": "rbf", "C": 1.0, "epsilon": 0.1}, "neural_network": {"mse": 2000000000.0, "ci": (1900000000.0, 2100000000.0), "mae": 50000.0, "r2": 0.7, "learning_rate": 0.001, "beta_1": 0.9, "beta_2": 0.999, "epsilon": 1e-07}}, description="Información sobre los modelos y sus características")
 
 # Ruta principal
