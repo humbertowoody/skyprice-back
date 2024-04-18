@@ -23,7 +23,6 @@ from constants import *
 
 # Mensaje de depuración
 logging.basicConfig(level=logging.INFO)
-logging.info("Iniciando la API de predicción inmobiliaria")
 logging.info("Cargando modelos de aprendizaje automático...")
 
 # Elegimos usar el renderizador "Agg" que no requiere usar el entorno gráfico
@@ -110,12 +109,12 @@ logging.info("Gráficas generadas con éxito")
 
 # Inicialización de la aplicación
 app = FastAPI(title="SkyPrice API",
-                description="Hola, bienvenido a la API de predicción inmobiliaria. Aquí puedes predecir el precio de una propiedad utilizando tres modelos de aprendizaje automático: Random Forest, SVM y Redes Neuronales. Para predecir el precio de una propiedad, envía una solicitud POST a la ruta /predict con los datos de la propiedad. También puedes obtener información sobre los modelos y sus características en la ruta /models. ¡Diviértete!",
-                version="0.1",
+                description="Hola, bienvenido a la API de **SkyPrice**. Aquí puedes predecir el precio de una propiedad utilizando tres modelos de aprendizaje automático: Random Forest, SVM y Redes Neuronales. Para predecir el precio de una propiedad, envía una solicitud POST a la ruta /predict con los datos de la propiedad. También puedes obtener información sobre los modelos y sus características en la ruta /models. ¡Diviértete!",
+                version="1.0.0",
                 docs_url="/openapi",
                 openapi_url="/openapi.json",
                 redoc_url="/redoc",
-                summary="API para predecir el precio de una propiedad",
+                summary="API para predecir el precio de un departamento en la CDMX",
                 contact={
                     "name": "Humberto Alejandro Ortega Alcocer",
                     "email": "hortegaa1500@alumno.ipn.mx",
@@ -145,44 +144,44 @@ app.add_middleware(
 
 # Definición de una propiedad
 class Property(BaseModel):
-    Size_Terrain: float = Field(..., example=120.5, description="El tamaño del terreno en metros cuadrados")
-    Size_Construction: float = Field(..., example=250.0, description="El tamaño de la construcción en metros cuadrados")
-    Rooms: int = Field(..., example=3, description="El número de habitaciones")
-    Bathrooms: float = Field(..., example=2.5, description="El número de baños")
-    Parking: int = Field(..., example=1, description="El número de espacios de estacionamiento disponibles")
-    Age: int = Field(..., example=5, description="La edad de la propiedad en años")
-    Lat: float = Field(..., example=19.432608, description="La latitud de la propiedad")
-    Lng: float = Field(..., example=-99.133209, description="La longitud de la propiedad")
-    Municipality: str = Field(..., example="Benito Juárez", description="El municipio donde se encuentra la propiedad")
+    Size_Terrain: float = Field(..., examples=[120.5], description="El tamaño del terreno en metros cuadrados")
+    Size_Construction: float = Field(..., examples=[250.0], description="El tamaño de la construcción en metros cuadrados")
+    Rooms: int = Field(..., examples=[3], description="El número de habitaciones")
+    Bathrooms: float = Field(..., examples=[2.5], description="El número de baños")
+    Parking: int = Field(..., examples=[1], description="El número de espacios de estacionamiento disponibles")
+    Age: int = Field(..., examples=[5], description="La edad de la propiedad en años")
+    Lat: float = Field(..., examples=[19.432608], description="La latitud de la propiedad")
+    Lng: float = Field(..., examples=[-99.133209], description="La longitud de la propiedad")
+    Municipality: str = Field(..., examples=["Benito Juárez"], description="El municipio donde se encuentra la propiedad")
 
 # Definición de la respuesta del endpoint principal
 class PrincipalResponse(BaseModel):
-    message: str = Field(..., example="Bienvenido a la API de predicción inmobiliaria", description="Mensaje de bienvenida")
-    time: datetime.datetime = Field(..., example=datetime.datetime.now(), description="La hora actual del servidor")
-    version: str = Field(..., example="0.1", description="La versión de la API")
-    description: str = Field(..., example="API para predecir el precio de una propiedad", description="Descripción de la API")
-    openapi: str = Field(..., example=f"{HOSTNAME}/openapi", description="Enlace a la documentación de la API")
-    redoc: str = Field(..., example=f"{HOSTNAME}/redoc", description="Enlace a la documentación de la API en formato ReDoc")
+    message: str = Field(..., examples=["Bienvenido a la API de predicción inmobiliaria"], description="Mensaje de bienvenida")
+    time: datetime.datetime = Field(..., examples=[datetime.datetime.now()], description="La hora actual del servidor")
+    version: str = Field(..., examples=["0.1"], description="La versión de la API")
+    description: str = Field(..., examples=["API para predecir el precio de una propiedad"], description="Descripción de la API")
+    openapi: str = Field(..., examples=[f"{HOSTNAME}/openapi"], description="Enlace a la documentación de la API")
+    redoc: str = Field(..., examples=[f"{HOSTNAME}/redoc"], description="Enlace a la documentación de la API en formato ReDoc")
 
 # Definición de la respuesta del endpoint de predicciones
 class PredictResponse(BaseModel):
-    random_forest: float = Field(..., example=2500000.0, description="La predicción del precio de la propiedad con el modelo Random Forest")
-    svm: float = Field(..., example=2700000.0, description="La predicción del precio de la propiedad con el modelo SVM")
-    neural_network: float = Field(..., example=2600000.0, description="La predicción del precio de la propiedad con el modelo de Redes Neuronales")
+    random_forest: float = Field(..., examples=[2500000.0], description="La predicción del precio de la propiedad con el modelo Random Forest")
+    svm: float = Field(..., examples=[2700000.0], description="La predicción del precio de la propiedad con el modelo SVM")
+    neural_network: float = Field(..., examples=[2600000.0], description="La predicción del precio de la propiedad con el modelo de Redes Neuronales")
 
 # Definición de la respuesta del endpoint de modelos
 class ModelsResponse(BaseModel):
-    dataset: dict = Field(..., example={"original": (1000,8),"training": {"X": (1000, 8), "y": (1000, 1)}, "testing": {"X": (250, 8), "y": (250, 1)}}, description="Información sobre los datos de entrenamiento y prueba")
-    models: dict = Field(..., example={"random_forest": {"mse": 1000000000.0, "ci": (900000000.0, 1100000000.0), "mae": 30000.0, "r2": 0.9, "feature_importances": [0.1, 0.2, 0.3, 0.4, 0.0, 0.0, 0.0, 0.0], "max_features": "auto", "max_depth": 10, "n_estimators": 100, "oob_score": True}, "svm": {"mse": 1500000000.0, "ci": (1400000000.0, 1600000000.0), "mae": 40000.0, "r2": 0.8, "kernel": "rbf", "C": 1.0, "epsilon": 0.1}, "neural_network": {"mse": 2000000000.0, "ci": (1900000000.0, 2100000000.0), "mae": 50000.0, "r2": 0.7, "learning_rate": 0.001, "beta_1": 0.9, "beta_2": 0.999, "epsilon": 1e-07}}, description="Información sobre los modelos y sus características")
+    dataset: dict = Field(..., examples=[{"original": (1000,8),"training": {"X": (1000, 8), "y": (1000, 1)}, "testing": {"X": (250, 8), "y": (250, 1)}}], description="Información sobre los datos de entrenamiento y prueba")
+    models: dict = Field(..., examples=[{"random_forest": {"mse": 1000000000.0, "ci": (900000000.0, 1100000000.0), "mae": 30000.0, "r2": 0.9, "feature_importances": [0.1, 0.2, 0.3, 0.4, 0.0, 0.0, 0.0, 0.0], "max_features": "auto", "max_depth": 10, "n_estimators": 100, "oob_score": True}, "svm": {"mse": 1500000000.0, "ci": (1400000000.0, 1600000000.0), "mae": 40000.0, "r2": 0.8, "kernel": "rbf", "C": 1.0, "epsilon": 0.1}, "neural_network": {"mse": 2000000000.0, "ci": (1900000000.0, 2100000000.0), "mae": 50000.0, "r2": 0.7, "learning_rate": 0.001, "beta_1": 0.9, "beta_2": 0.999, "epsilon": 1e-07}}], description="Información sobre los modelos y sus características")
 
 # Ruta principal
 @app.get("/", summary="Ruta principal", description="Ruta principal de la API de predicción inmobiliaria.", tags=["Principal"], response_description="Mensaje de bienvenida", response_model=PrincipalResponse)
 async def principal():
     # Regresamos un mensaje de bienvenida, la hora actual del servidor, la fecha, la versión del API, la descripción y un link a los docs de swagger.
-    return {"message": "Bienvenido a la API de predicción inmobiliaria",
+    return {"message": "Bienvenido a la API de SkyPrice",
             "time": datetime.datetime.now(),
-            "version": "0.1",
-            "description": "API para predecir el precio de una propiedad, si deseas ver la documentación de la API, visita el siguiente enlace:",
+            "version": "1.0.0",
+            "description": "API para predecir el precio de un departamento en la Ciudad de México, si deseas ver la documentación de la API, visita el enlace de OpenAPI (Swagger UI) o ReDoc:",
             "openapi": f"{HOSTNAME}/openapi",
             "redoc": f"{HOSTNAME}/redoc"}
 
