@@ -46,7 +46,7 @@ TEST_SIZE: float=float(environ.get('TEST_SIZE', 0.25))
 FAST_TEST: bool=bool(environ.get('FAST_TEST', 'True') == 'True')
 
 # Lista de Alcaldías
-municipalities = ['Álvaro Obregón', 'Azcapotzalco', 'Benito Juárez', 'Coyoacán', 'Cuajimalpa', 'Cuauhtémoc',
+municipalities = ['Álvaro Obregón', 'Azcapotzalco', 'Benito Juárez', 'Coyoacán', 'Cuajimalpa de Morelos', 'Cuauhtémoc',
                   'Gustavo A. Madero', 'Iztacalco', 'Iztapalapa', 'Magdalena Contreras', 'Miguel Hidalgo',
                   'Milpa Alta', 'Tláhuac', 'Tlalpan', 'Venustiano Carranza', 'Xochimilco']
 
