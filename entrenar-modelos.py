@@ -59,9 +59,9 @@ for columna in columnas_numericas:
 print(f'Dimensiones del dataset después de eliminar columnas no numéricas: {df.shape}')
 
 # Sustituir NaN por la media en columnas numéricas de baja cardinalidad
-#for columna in ['Rooms', 'Bathrooms', 'Parking']:
-#    if df[columna].isnull().sum() > 0:
-#        df[columna].fillna(df[columna].mean())
+for columna in ['Size_Terrain', 'Size_Construction', 'Rooms', 'Bathrooms', 'Parking', 'Age', 'Lat', 'Lng']:
+    if df[columna].isnull().sum() > 0:
+        df[columna].fillna(df[columna].mean())
 print(f'Valores nulos después de sustituir NaN por la media: \n{df.isnull().sum()}')
 
 # Eliminar filas con NaN
@@ -75,14 +75,14 @@ df['Age'] = df['Age'].apply(lambda x: year - x if x > 1000 else x)
 # Filtrar filas que cumplen con los rangos deseados
 df = df[
     (df['Price'] >= MIN_PRICE) & (df['Price'] <= MAX_PRICE) &
-    (df['Size_Terrain'] >= MIN_SIZE_TERRAIN) & (df['Size_Terrain'] <= MAX_SIZE_TERRAIN)# &
-#    (df['Size_Construction'] >= MIN_SIZE_CONSTRUCTION) & (df['Size_Construction'] <= MAX_SIZE_CONSTRUCTION) &
-#    (df['Rooms'] >= MIN_ROOMS) & (df['Rooms'] <= MAX_ROOMS) &
-#    (df['Bathrooms'] >= MIN_BATHROOMS) & (df['Bathrooms'] <= MAX_BATHROOMS) &
-#    (df['Parking'] >= MIN_PARKING) & (df['Parking'] <= MAX_PARKING) &
-#    (df['Age'] >= MIN_AGE) & (df['Age'] <= MAX_AGE) &
-#    (df['Lat'] >= MIN_LAT) & (df['Lat'] <= MAX_LAT) &
-#    (df['Lng'] >= MIN_LNG) & (df['Lng'] <= MAX_LNG)
+    (df['Size_Terrain'] >= MIN_SIZE_TERRAIN) & (df['Size_Terrain'] <= MAX_SIZE_TERRAIN) &
+    (df['Size_Construction'] >= MIN_SIZE_CONSTRUCTION) & (df['Size_Construction'] <= MAX_SIZE_CONSTRUCTION) &
+    (df['Rooms'] >= MIN_ROOMS) & (df['Rooms'] <= MAX_ROOMS) &
+    (df['Bathrooms'] >= MIN_BATHROOMS) & (df['Bathrooms'] <= MAX_BATHROOMS) &
+    (df['Parking'] >= MIN_PARKING) & (df['Parking'] <= MAX_PARKING) &
+    (df['Age'] >= MIN_AGE) & (df['Age'] <= MAX_AGE) &
+    (df['Lat'] >= MIN_LAT) & (df['Lat'] <= MAX_LAT) &
+    (df['Lng'] >= MIN_LNG) & (df['Lng'] <= MAX_LNG)
 ]
 print(f'Estadísticas después de aplicar límites:\n {df.describe()}')
 
