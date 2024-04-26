@@ -14,7 +14,9 @@ matplotlib = "*"
 email-validator = "*"
 python-dotenv = "*"
 tensorflow = "*"
-scikeras = {editable = true, ref = "fix-dep", git = "git+https://github.com/adriangb/scikeras.git"}
+scikeras = "*"
+fuzzywuzzy = "*"
+python-levenshtein = "*"
 
 [dev-packages]
 

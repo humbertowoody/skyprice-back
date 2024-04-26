@@ -20,6 +20,7 @@ from constants import *
 import numpy as np
 from scikeras.wrappers import KerasRegressor
 import keras as keras
+from fuzzywuzzy import process
 
 # Mensaje de inicio
 print("Script de entrenamiento de modelos")
@@ -46,7 +47,16 @@ df = df[['Municipality',*columnas_numericas]]
 print(f'Columnas después de eliminar columnas no numéricas: {df.columns}')
 
 # Validar que Municipality sea una alcalía de la CDMX, o tratar de aproximarla, si no es posible, eliminar la fila
-df = df[df['Municipality'].isin(municipalities)]
+
+# Función para ajustar los nombres de las alcaldías al valor más cercano de la lista
+def ajustar_municipality(nombre, lista_alcaldias):
+    # Encuentra la coincidencia más cercana en la lista
+    coincidencia, _ = process.extractOne(nombre, lista_alcaldias)
+    return coincidencia
+
+# Aplica la función a la columna 'Municipality'
+df['Municipality'] = df['Municipality'].apply(lambda x: ajustar_municipality(x, municipalities))
+
 print(f'Dimensiones del dataset después de filtrar por alcaldías: {df.shape}')
 
 # Sustituir infinitos por NaN
