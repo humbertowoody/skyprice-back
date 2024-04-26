@@ -17,6 +17,7 @@ ARCHIVO_Y_TEST: str=environ.get('ARCHIVO_Y_TEST', 'y_test.csv')
 ARCHIVO_MODELO_RF: str=environ.get('ARCHIVO_MODELO_RF', 'rf_model.joblib')
 ARCHIVO_MODELO_SVM: str=environ.get('ARCHIVO_MODELO_SVM', 'svm_model.joblib')
 ARCHIVO_MODELO_RN: str=environ.get('ARCHIVO_MODELO_RN', 'nn_model.keras')
+ARCHIVO_MODELO_RN_HISTORIA: str=environ.get('ARCHIVO_MODELO_RN_HISTORIA', 'nn_model_history.joblib')
 ARCHIVO_PREPROCESADOR: str=environ.get('ARCHIVO_PREPROCESADOR', 'preprocessor.joblib')
 
 # Configuración de limpieza de datos

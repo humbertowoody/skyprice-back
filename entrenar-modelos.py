@@ -170,7 +170,7 @@ param_grid_nn_fast = {
     "optimizer": [keras.optimizers.Adam],
     "optimizer__learning_rate": [0.1],
     "loss": [keras.losses.MeanSquaredError],
-    "metrics": [keras.metrics.MeanSquaredError],
+    "metrics": [keras.metrics.R2Score],
 }
 param_grid_nn_slow = {
     "hidden_layer_sizes": [(10, 10), (10, 10, 10), (30, 30)],
@@ -180,7 +180,7 @@ param_grid_nn_slow = {
     "optimizer": [keras.optimizers.Adam],
     "optimizer__learning_rate": [0.1, 0.01, 0.001],
     "loss": [keras.losses.MeanSquaredError],
-    "metrics": [keras.metrics.MeanSquaredError],
+    "metrics": [keras.metrics.R2Score],
 }
 param_grid_nn = FAST_TEST and param_grid_nn_fast or param_grid_nn_slow
 
@@ -208,8 +208,8 @@ opt = keras.optimizers.Adam(learning_rate=mejores_parametros["optimizer__learnin
 nn_model = get_reg({"n_features_in_": X_train_preprocessed.shape[1]}, mejores_parametros["hidden_layer_sizes"], mejores_parametros["dropout"])
 nn_model.compile(
         optimizer=opt,
-        loss=keras.losses.MeanSquaredError(), metrics=[keras.metrics.MeanSquaredError()])
-nn_model.fit(X_train_preprocessed,
+        loss=keras.losses.MeanSquaredError(), metrics=[keras.metrics.R2Score()])
+nn_model_history = nn_model.fit(X_train_preprocessed,
              y_train,
              batch_size=mejores_parametros["batch_size"],
              epochs=mejores_parametros["epochs"],
@@ -288,8 +288,9 @@ print("Guardando modelos...")
 dump(rf_pipeline, ARCHIVO_MODELO_RF)
 dump(svm_pipeline, ARCHIVO_MODELO_SVM)
 dump(nn_model, ARCHIVO_MODELO_RN)
+dump(nn_model_history, ARCHIVO_MODELO_RN_HISTORIA)
 dump(preprocessor, ARCHIVO_PREPROCESADOR)
-print(f"Modelos guardados en archivos {ARCHIVO_MODELO_RF}, {ARCHIVO_MODELO_SVM}, {ARCHIVO_MODELO_RN}, {ARCHIVO_PREPROCESADOR}")
+print(f"Modelos guardados en archivos {ARCHIVO_MODELO_RF}, {ARCHIVO_MODELO_SVM}, {ARCHIVO_MODELO_RN}, {ARCHIVO_MODELO_RN_HISTORIA}, {ARCHIVO_PREPROCESADOR}")
 
 # Validar los modelos e imprimir sus resultados
 def validate_model(model, X, y, name):

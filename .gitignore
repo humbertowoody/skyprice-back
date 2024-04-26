@@ -287,3 +287,6 @@ $RECYCLE.BIN/
 
 # Archivos Joblib
 *.joblib
+
+# Gráficas
+plots.png

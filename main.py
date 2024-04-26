@@ -17,7 +17,6 @@ from fastapi import FastAPI # Para crear la aplicación de FastAPI
 from fastapi.responses import FileResponse # Para servir archivos estáticos
 import matplotlib # Para configurar el renderizador
 import matplotlib.pyplot as plt # Para generar gráficas
-import tempfile # Para crear archivos temporales
 import logging # Para mostrar mensajes de depuración
 from constants import *
 
@@ -33,6 +32,7 @@ matplotlib.use('Agg')
 rf_model = load(ARCHIVO_MODELO_RF)
 svm_model = load(ARCHIVO_MODELO_SVM)
 nn_model = load(ARCHIVO_MODELO_RN)
+nn_model_history = load(ARCHIVO_MODELO_RN_HISTORIA)
 preprocessor = load(ARCHIVO_PREPROCESADOR)
 
 logging.info("Modelos de aprendizaje automático cargados con éxito")
@@ -78,7 +78,7 @@ nn_mae = mean_absolute_error(y_test, nn_preds)
 # Calculamos el coeficiente de determinación de cada modelo
 rf_r2 = rf_model.score(X_test, y_test)
 svm_r2 = svm_model.score(X_test, y_test)
-nn_r2 = nn_model.evaluate(preprocessor.transform(X_test), y_test, verbose=0)
+nn_r2 = nn_model_history.history['r2_score'][-1]
 
 logging.info("Modelos de aprendizaje automático evaluados con éxito")
 logging.info("Generando gráficas de predicciones vs valores reales...")
@@ -99,8 +99,7 @@ for ax, (model_name, preds) in zip(axs, models.items()):
 plt.tight_layout()
 
 # Servimos la gráfica sin tocar el disco
-with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmpfile:
-    plt.savefig(tmpfile.name)
+plt.savefig('plots.png')
 
 # Cerramos la gráfica
 plt.close('all')
@@ -188,7 +187,7 @@ async def principal():
 
 @app.get("/plots", response_class=FileResponse, summary="Obtener gráficas de predicciones vs valores reales", description="Obtener las gráficas de predicciones vs valores reales de los modelos Random Forest, SVM y Redes Neuronales.", tags=["Gráficas"], response_description="Gráficas de predicciones vs valores reales")
 async def plots():
-        return FileResponse(tmpfile.name)
+        return FileResponse('plots.png')
 
 
 # Ruta para predecir el precio de una propiedad
