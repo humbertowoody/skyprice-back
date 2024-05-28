@@ -8,9 +8,6 @@ printf "Docker URL: $DOCKER_URL\n"
 # Construir la imagen base
 docker buildx build --platform linux/arm64,linux/amd64  --cache-from $DOCKER_URL-builder:latest --cache-to=type=inline --progress plain -t $DOCKER_URL-builder:latest --target builder .
 
-# Construir la imagen de dependencias
-#docker buildx build --platform linux/arm64,linux/amd64 --cache-from $DOCKER_URL-base:latest --cache-from $DOCKER_URL-deps:latest --cache-to=type=inline --progress plain -t $DOCKER_URL-deps:latest --target deps .
-
 # Construir la imagen de ejecución
 docker buildx build --platform linux/arm64,linux/amd64 --cache-from $DOCKER_URL-builder:latest --cache-from $DOCKER_URL:latest --cache-to=type=inline --progress plain -t $DOCKER_URL:latest --target run .
 

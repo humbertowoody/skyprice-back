@@ -1,5 +1,5 @@
 # @Author: Humberto Alejandro Ortega Alcocer
-# @Date: 2021-08-29
+# @Date: 2024-Abril-8
 # @Description: API para predecir el precio de una propiedad utilizando tres modelos de aprendizaje automático: Random Forest, SVM y Redes Neuronales.
 # @Dependencies: joblib, tensorflow, pydantic, pandas, matplotlib, tempfile, fastapi
 # @Usage: uvicorn main:app --reload
@@ -185,6 +185,7 @@ async def principal():
             "redoc": f"{HOSTNAME}/redoc"}
 
 
+# Ruta para obtener las gráficas de predicciones vs valores reales
 @app.get("/plots", response_class=FileResponse, summary="Obtener gráficas de predicciones vs valores reales", description="Obtener las gráficas de predicciones vs valores reales de los modelos Random Forest, SVM y Redes Neuronales.", tags=["Gráficas"], response_description="Gráficas de predicciones vs valores reales")
 async def plots():
         return FileResponse('plots.png')

@@ -1,5 +1,5 @@
 # @Author: Humberto Alejandro Ortega Alcocer
-# @Date: 2021-05-02
+# @Date: 2024-Abril-8
 # @Description: Script para entrenar modelos de aprendizaje automático y guardarlos en archivos
 # joblib y h5.
 # @Usage: python entrenar-modelos.py

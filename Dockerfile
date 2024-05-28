@@ -1,3 +1,20 @@
+#
+#
+#  .d8888b. 888             8888888b.        d8b
+# d88P  Y88b888             888   Y88b       Y8P
+# Y88b.     888             888    888
+#  "Y888b.  888  888888  888888   d88P888d888888 .d8888b .d88b.
+#     "Y88b.888 .88P888  8888888888P" 888P"  888d88P"   d8P  Y8b
+#       "888888888K 888  888888       888    888888     88888888
+# Y88b  d88P888 "88bY88b 888888       888    888Y88b.   Y8b.
+#  "Y8888P" 888  888 "Y88888888       888    888 "Y8888P "Y8888
+#                        888
+#                   Y8b d88P
+#                    "Y88P"               (C) Humberto Alejandro Ortega Alcocer
+#
+# Dockerfile para una aplicación FastAPI con Uvicorn y Pipenv
+
+
 # Usar una imagen oficial de Python como imagen base
 FROM python:3.12-slim as builder
 
